@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="cssduatiga.css" />
+  <title>Dark Weather</title>
+</head>
+
+<body>
+  <header class="navbar">
+    <h2 class="logo">Dark Weather</h2>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="download.html">Download App</a>
+    </nav>
+
+    <a href="page3.html">
+    <button class="btn-sign">Sign Up</button>
+    </a>
+  </header>
+
+  <section class="hero">
+    <h1>Seeing the weather of the whole world<br>
+      with <span>Dark Weather!</span>
+    </h1>
+  </section>
+
+  <section class="search-filter">
+    <input type="text" placeholder="Search Here" id="searchCity" />
+
+
+  </section>
+
+  <section class="weather-cards">
+
+    <div class="card" id="tehranCard">
+      <img src="projek/pcloudy 2.png" class="icon">
+      <h3>Tehran <span id="tehranTemp">--°C</span></h3>
+      <p>wind speed : <span id="tehranWind">--</span> km</p>
+      <p><span id="tehranTime">--:--</span></p>
+      <p class="desc" id="tehranDesc">--</p>
+    </div>
+
+    <div class="card" id="qomCard">
+      <img src="projek/sun.png" class="icon">
+      <h3>Qom <span id="qomTemp">--°C</span></h3>
+      <p>wind speed : <span id="qomWind">--</span> km</p>
+      <p><span id="qomTime">--:--</span></p>
+      <p class="desc" id="qomDesc">--</p>
+    </div>
+
+    <div class="card" id="gilanCard">
+      <img src="projek/Tshower.png" class="icon">
+      <h3>Gilan <span id="gilanTemp">--°C</span></h3>
+      <p>wind speed : <span id="gilanWind">--</span> km</p>
+      <p><span id="gilanTime">--:--</span></p>
+      <p class="desc" id="gilanDesc">--</p>
+    </div>
+
+      
+  </section>
+
+  
+  <script>
+  const apiKey = "e786b73ced7efbeaa2e77f1cb3037a51";
+
+  const searchInput = document.getElementById("searchCity");
+  const cardsContainer = document.querySelector(".weather-cards");
+
+  const cities = [
+    { name: "Tehran", tag: "tehran" },
+    { name: "Qom", tag: "qom" },
+    { name: "Gilan", tag: "gilan" }
+  ];
+
+  cities.forEach(city => {
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.name}&appid=${apiKey}&units=metric`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById(`${city.tag}Temp`).innerText = `${data.main.temp}°C`;
+        document.getElementById(`${city.tag}Wind`).innerText = data.wind.speed;
+        document.getElementById(`${city.tag}Desc`).innerText = data.weather[0].description;
+
+        const time = new Date(data.dt * 1000);
+        document.getElementById(`${city.tag}Time`).innerText =
+          time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      });
+  });
+
+
+  function createWeatherCard(data, cityName) {
+    const time = new Date(data.dt * 1000).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    const condition = data.weather[0].main.toLowerCase();
+    let icon = "sun.png";
+
+    if (condition.includes("cloud")) icon = "projek/pcloudy 2.png";
+    if (condition.includes("rain")) icon = "projek/Tshower.png";
+    if (condition.includes("snow")) icon = "projek/snow.png";
+    if (condition.includes("storm")) icon = "projek/storm.png";
+
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    card.innerHTML = `
+      <img src="${icon}" class="icon">
+      <h3>${cityName} <span>${data.main.temp}°C</span></h3>
+      <p>wind speed : ${data.wind.speed} km</p>
+      <p>${time}</p>
+      <p class="desc">${data.weather[0].description}</p>
+    `;
+
+    cardsContainer.prepend(card);
+  }
+
+  searchInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      const city = searchInput.value.trim();
+      if (city === "") return;
+
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cod == 404) {
+            alert("Kota tidak ditemukan!");
+            return;
+          }
+
+          createWeatherCard(data, city);
+        })
+        .catch(() => alert("Gagal mengambil data!"));
+
+      searchInput.value = "";
+    }
+  });
+</script>
+
+
+  <footer class="footer">
+  <div class="footer-content">
+    <h3>Dark Weather</h3>
+    <p>Real-time global weather information powered by OpenWeather API.</p>
+
+    <div class="footer-links">
+      <a href="#">Home</a>
+      <a href="#">Download App</a>
+    </div>
+
+    <p class="copyright">© 2025 Dark Weather — All Rights Reserved</p>
+  </div>
+</footer>
+
+</body>
+</html>
